@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Neo Soul — Start your journal</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&family=Cormorant:wght@300&family=Manrope:wght@200;300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="_shared.css">
+</head>
+<body>
+<main class="auth"><div class="box">
+  <a href="index.html" class="mark">Neo Soul</a>
+  <h1>Start your <em>journal</em></h1>
+  <p class="sub">Free for 14 days. No card needed to begin.</p>
+
+  <div class="plan">
+    <span class="t">Neo Soul journal</span>
+    <span class="p">Free for 14 days, then &pound;10 a month &middot; cancel any time</span>
+  </div>
+
+  <p class="err" id="err" hidden></p>
+
+  <form id="form" novalidate>
+    <label for="name">First name</label>
+    <input id="name" type="text" autocomplete="given-name" required>
+
+    <label for="email">Email</label>
+    <input id="email" type="email" autocomplete="email" required>
+
+    <label for="pw">Password</label>
+    <input id="pw" type="password" autocomplete="new-password" minlength="8" required>
+
+    <div class="check">
+      <input type="checkbox" id="terms" required>
+      <label for="terms" style="font:inherit;letter-spacing:0;text-transform:none;color:inherit;padding:0;margin:0">
+        I agree to the <a href="#">Terms</a> and the <a href="#">Privacy Policy</a>.</label>
+    </div>
+
+    <div class="check">
+      <input type="checkbox" id="memory">
+      <label for="memory" style="font:inherit;letter-spacing:0;text-transform:none;color:inherit;padding:0;margin:0">
+        Let Neo Soul read my entries to build my profile over time.
+        <span style="opacity:.75">Optional. The journal works fully without this, and you
+        can change it later.</span></label>
+    </div>
+
+    <button class="btn" id="go" type="submit">Create my journal</button>
+  </form>
+
+  <p class="alt">Already have an account? <a href="signin.html">Sign in</a></p>
+  <p class="mode" id="mode"></p>
+</div></main>
+
+<script type="module">
+import { api, MODE, requireUser } from './neosoul.js';
+
+document.getElementById('mode').textContent = MODE === 'local'
+  ? 'Prototype mode — this account lives in this browser only.'
+  : '';
+
+// already signed in? go straight through
+api.getUser().then(u => { if (u) location.replace('journal.html'); });
+
+const err = document.getElementById('err');
+const show = m => { err.textContent = m; err.hidden = false; };
+
+document.getElementById('form').addEventListener('submit', async e => {
+  e.preventDefault();
+  err.hidden = true;
+  const name  = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim().toLowerCase();
+  const pw    = document.getElementById('pw').value;
+  const terms = document.getElementById('terms').checked;
+  const mem   = document.getElementById('memory').checked;
+
+  if (!name)            return show('Please enter your first name.');
+  if (!/^\S+@\S+\.\S+$/.test(email)) return show('That email does not look right.');
+  if (pw.length < 8)    return show('Passwords need at least 8 characters.');
+  if (!terms)           return show('Please accept the Terms and Privacy Policy to continue.');
+
+  const btn = document.getElementById('go');
+  btn.disabled = true; btn.textContent = 'Creating…';
+  try {
+    const user = await api.signUp({ email, password: pw, name });
+    await api.putDoc(user.id, 'profile', { name, memory_consent: mem,
+                                           memory_consent_at: mem ? new Date().toISOString() : null });
+    location.href = 'journal.html?welcome=1';
+  } catch (ex) {
+    show(ex.message || 'Something went wrong. Please try again.');
+    btn.disabled = false; btn.textContent = 'Create my journal';
+  }
+});
+</script>
+</body>
+</html>

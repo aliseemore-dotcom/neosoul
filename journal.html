@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NeoSoul — Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&family=Cormorant:wght@300&family=Manrope:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3E7D7; --card:#FBF4E8; --line:rgba(126,95,48,.3); --soft:rgba(126,95,48,.14);
+  --ink:#3A2C36; --ink2:#6E5867; --gold:#7E5F30; --mauve:#B789A6; --bloom:#2B1D2C;
+}
+*{box-sizing:border-box}
+html{background:var(--paper)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'Manrope',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+button,input,textarea,select{font-family:inherit}
+.shell{max-width:940px;margin:0 auto;padding:0 24px 90px}
+
+.bar{display:flex;align-items:center;justify-content:space-between;padding:20px 0;
+  border-bottom:1px solid var(--line)}
+.who{font-size:11px;color:var(--ink2);font-weight:300;display:flex;gap:12px;
+  align-items:center;margin-left:auto;margin-right:16px}
+.who .trial{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;
+  border:1px solid var(--line);border-radius:2px;padding:2px 7px;color:var(--gold)}
+.who .trial.over{border-color:rgba(150,69,63,.5);color:#8A4039}
+.who button{border:0;background:none;cursor:pointer;color:var(--ink2);font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;opacity:.7;padding:0}
+.who button:hover{opacity:1}
+.paywall{position:fixed;inset:0;background:rgba(43,29,44,.55);backdrop-filter:blur(3px);
+  display:flex;align-items:center;justify-content:center;padding:24px;z-index:50}
+.paywall[hidden]{display:none}
+.pw-box{background:var(--paper);border:1px solid var(--line);border-radius:4px;
+  padding:34px 32px;max-width:400px;text-align:center}
+.pw-box h3{font-family:'Bodoni Moda',serif;font-weight:400;font-size:26px;margin:0 0 10px}
+.pw-box p{font-size:14px;line-height:1.7;font-weight:300;color:var(--ink2);margin:0 0 22px}
+.pw-box .btn{width:100%;padding:14px;border:1px solid var(--gold);border-radius:999px;
+  background:rgba(126,95,48,.1);color:var(--gold);cursor:pointer;font-family:inherit;
+  font-size:11px;letter-spacing:.24em;text-transform:uppercase}
+.mark{font-family:'Cormorant',serif;font-weight:300;font-size:15px;letter-spacing:.44em;
+  text-transform:uppercase;padding-left:.44em}
+.tabs{display:flex;gap:3px}
+.tab{border:0;background:none;cursor:pointer;padding:7px 15px;border-radius:999px;
+  font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink2)}
+.tab[aria-selected="true"]{background:rgba(126,95,48,.11);color:var(--ink)}
+.tab:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.panel[hidden]{display:none}
+
+h2{font-family:'Bodoni Moda',serif;font-weight:400;font-size:clamp(24px,3vw,34px);margin:0 0 4px}
+.lab{font-size:10.5px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);
+  margin:0 0 12px;padding-left:.28em;font-weight:500}
+
+/* ---- date nav ---- */
+.datenav{display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:26px 0 8px}
+.nav-btn{border:1px solid var(--line);background:none;cursor:pointer;width:34px;height:34px;
+  border-radius:999px;color:var(--ink2);font-size:15px;line-height:1}
+.nav-btn:disabled{opacity:.3;cursor:default}
+.nav-btn:hover:not(:disabled){background:rgba(126,95,48,.08)}
+.today-btn{border:1px solid var(--line);background:none;cursor:pointer;padding:7px 15px;
+  border-radius:999px;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+
+/* ---- moon strip ---- */
+.strip{display:flex;align-items:center;gap:14px;padding:14px 18px;margin:14px 0 0;
+  background:var(--card);border:1px solid var(--soft);border-radius:3px;font-size:13px;
+  color:var(--ink2);font-weight:300;flex-wrap:wrap}
+.disc{width:26px;height:26px;border-radius:50%;flex:0 0 auto;
+  border:1px solid rgba(126,95,48,.35)}
+.strip b{color:var(--ink);font-weight:500}
+.kw{font-size:9.5px;letter-spacing:.2em;border:1px solid var(--line);border-radius:2px;
+  padding:2px 7px;color:var(--gold)}
+
+.reflect{margin:16px 0 0;padding:18px 20px;border:1px solid var(--soft);border-radius:3px;
+  background:rgba(255,252,246,.45)}
+.r-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.r-name{font-family:'Bodoni Moda',serif;font-size:18px}
+.r-theme{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.r-q{margin:0 0 12px;font-family:'Bodoni Moda',serif;font-style:italic;
+  font-size:clamp(16px,1.7vw,20px);line-height:1.42;color:var(--ink)}
+.r-more{display:flex;gap:26px;flex-wrap:wrap;font-size:12.5px;line-height:1.6;
+  font-weight:300;color:var(--ink2)}
+.r-more b{font-weight:500;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink2);opacity:.75;margin-right:5px}
+/* ---- guidance ---- */
+.guide{margin:16px 0 0;padding:18px 20px;border-left:1px solid var(--line);
+  background:linear-gradient(96deg,rgba(255,252,246,.7),rgba(251,244,232,.35))}
+.guide p{margin:0;font-family:'Bodoni Moda',serif;font-style:italic;
+  font-size:clamp(16px,1.7vw,20px);line-height:1.45}
+.guide .src{margin-top:8px;font-family:'Manrope';font-style:normal;font-size:10.5px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--ink2);opacity:.65}
+
+/* ---- scales ---- */
+.scales{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin:24px 0 0}
+.scale .lab{margin-bottom:9px}
+.dots{display:flex;gap:8px}
+.dot{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:none;
+  cursor:pointer;color:var(--ink2);font-size:11px;line-height:1}
+.dot[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:#FBF4E8}
+.dot:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.clear{border:0;background:none;cursor:pointer;font-size:10.5px;color:var(--ink2);
+  opacity:.6;padding:4px 0;margin-top:6px;letter-spacing:.1em}
+
+/* ---- writing ---- */
+textarea{width:100%;min-height:230px;resize:vertical;padding:18px 20px;margin-top:22px;
+  background:var(--card);border:1px solid var(--soft);border-radius:3px;color:var(--ink);
+  font-size:15.5px;line-height:1.85;font-weight:300}
+textarea:focus{outline:none;border-color:var(--line);background:#FDF8EE}
+textarea::placeholder{color:var(--ink2);opacity:.45}
+.footrow{display:flex;justify-content:space-between;gap:14px;margin-top:10px;
+  font-size:11.5px;color:var(--ink2);font-weight:300}
+.saved{opacity:0;transition:opacity .4s}.saved.on{opacity:.85}
+
+/* ---- moon panel ---- */
+.mgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:20px}
+.mhead{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);
+  opacity:.6;text-align:center;padding-bottom:6px}
+.day{aspect-ratio:1;border:1px solid var(--soft);border-radius:3px;background:none;
+  cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;padding:4px;color:var(--ink2);font-size:12px;position:relative}
+.day:hover{background:rgba(126,95,48,.06)}
+.day.out{opacity:.28;cursor:default}
+.day.today{border-color:var(--gold);border-width:1.5px}
+.day .d{font-size:12.5px;color:var(--ink)}
+.day .md{width:15px;height:15px;border-radius:50%;border:1px solid rgba(126,95,48,.3)}
+.day .has{position:absolute;bottom:5px;width:4px;height:4px;border-radius:50%;background:var(--gold)}
+.day.evt{background:rgba(183,137,166,.12)}
+.mnav{display:flex;align-items:center;justify-content:space-between;margin-top:22px}
+
+.block{margin-top:30px;border-top:1px solid var(--line);padding-top:20px}
+.block h3{font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);
+  margin:0 0 12px;padding-left:.26em;font-weight:500}
+.block p{margin:0 0 10px;font-size:14.5px;line-height:1.75;font-weight:300;color:var(--ink2)}
+.q{font-family:'Bodoni Moda',serif;font-style:italic;font-size:17px;color:var(--ink);
+  padding-left:14px;border-left:1px solid var(--line)}
+.hist-item{padding:11px 0;border-bottom:1px solid var(--soft)}
+.hist-when{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink2);
+  opacity:.75;margin:0 0 4px}
+
+/* ---- ME ---- */
+.prof{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:18px}
+.field{border:1px solid var(--soft);border-radius:3px;padding:12px 14px;background:rgba(255,252,246,.5)}
+.field label{display:block;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink2);opacity:.7;margin-bottom:5px}
+.field input{width:100%;border:0;background:none;font-size:14.5px;color:var(--ink);
+  font-weight:300;padding:0}
+.field input:focus{outline:none}
+
+.mem{border:1px solid var(--soft);border-radius:3px;padding:14px 16px;margin-bottom:10px;
+  background:rgba(255,252,246,.45)}
+.mem-top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.mem-type{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.mem-conf{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;padding:1px 6px;
+  border-radius:2px;border:1px solid var(--soft);color:var(--ink2)}
+.mem-conf.high{border-color:rgba(62,107,79,.5);color:#3E6B4F}
+.mem-title{font-size:15px;color:var(--ink);font-weight:400;margin:0}
+.mem-src{margin:8px 0 0;font-size:12.5px;line-height:1.6;color:var(--ink2);font-weight:300;
+  font-style:italic;opacity:.85}
+.mem-acts{display:flex;gap:8px;margin-top:10px}
+.mini{border:1px solid var(--line);background:none;cursor:pointer;padding:4px 11px;
+  border-radius:999px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
+.mini:hover{background:rgba(126,95,48,.08)}
+.mem.confirmed{border-color:rgba(62,107,79,.35);background:rgba(207,224,218,.18)}
+
+.note{font-size:12px;line-height:1.65;color:var(--ink2);font-weight:300;opacity:.8;
+  border:1px dashed var(--line);border-radius:3px;padding:12px 14px;margin-top:18px}
+.empty{padding:44px 0;text-align:center;color:var(--ink2);font-weight:300;font-size:14.5px;line-height:1.7}
+.empty b{display:block;font-family:'Bodoni Moda',serif;font-style:italic;font-size:20px;
+  color:var(--ink);font-weight:400;margin-bottom:8px}
+
+@media (max-width:700px){
+  .shell{padding:0 16px 70px}
+  .tab{padding:7px 10px;letter-spacing:.12em}
+  .scales{grid-template-columns:1fr;gap:18px}
+  .datenav{flex-wrap:wrap}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="bar">
+    <span class="mark">Neo Soul</span>
+    <span class="who" id="who"></span>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true"  data-p="today">Today</button>
+      <button class="tab" role="tab" aria-selected="false" data-p="moon">Moon</button>
+      <button class="tab" role="tab" aria-selected="false" data-p="me">Me</button>
+    </div>
+  </div>
+
+  <!-- ══════════ TODAY ══════════ -->
+  <section class="panel" id="today">
+    <div class="datenav">
+      <div>
+        <p class="lab" id="tLab">Today</p>
+        <h2 id="tDate">—</h2>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="nav-btn" id="prevDay" aria-label="Previous day">&larr;</button>
+        <button class="today-btn" id="jumpToday">Today</button>
+        <button class="nav-btn" id="nextDay" aria-label="Next day">&rarr;</button>
+      </div>
+    </div>
+
+    <div class="strip" id="tMoon"></div>
+
+    <div class="guide">
+      <p id="gText">—</p>
+      <p class="src" id="gSrc"></p>
+    </div>
+
+    <div class="reflect" id="reflect">
+      <div class="r-head"><span class="r-name" id="rName"></span>
+        <span class="r-theme" id="rTheme"></span></div>
+      <p class="r-q" id="rQ"></p>
+      <div class="r-more">
+        <span><b>Shadow</b> <span id="rShadow"></span></span>
+        <span><b>One step</b> <span id="rAction"></span></span>
+      </div>
+    </div>
+
+    <div class="scales">
+      <div class="scale"><p class="lab">Mood</p><div class="dots" id="moodDots"></div>
+        <button class="clear" data-clear="mood">clear</button></div>
+      <div class="scale"><p class="lab">Energy</p><div class="dots" id="energyDots"></div>
+        <button class="clear" data-clear="energy">clear</button></div>
+    </div>
+
+    <textarea id="note" placeholder="Write as much or as little as you like."></textarea>
+    <div class="footrow"><span id="count"></span><span class="saved" id="saved">Saved</span></div>
+  </section>
+
+  <!-- ══════════ MOON ══════════ -->
+  <section class="panel" id="moon" hidden>
+    <div class="mnav">
+      <div><p class="lab">Lunar calendar</p><h2 id="mTitle">—</h2></div>
+      <div style="display:flex;gap:8px">
+        <button class="nav-btn" id="prevMonth" aria-label="Previous month">&larr;</button>
+        <button class="nav-btn" id="nextMonth" aria-label="Next month">&rarr;</button>
+      </div>
+    </div>
+    <div class="mgrid" id="mHead"></div>
+    <div class="mgrid" id="mGrid"></div>
+
+    <div class="block" id="reflectBlock">
+      <h3 id="rTitle">Personal reflection</h3>
+      <p id="rInsight"></p>
+      <p id="rNotice"></p>
+      <p class="q" id="rQuestion"></p>
+    </div>
+
+    <div class="block" id="histBlock">
+      <h3 id="hTitle">Last full moon</h3>
+      <div id="hList"></div>
+    </div>
+  </section>
+
+  <!-- ══════════ ME ══════════ -->
+  <section class="panel" id="me" hidden>
+    <p class="lab">Static profile</p>
+    <h2>What you told us</h2>
+    <div class="prof" id="profGrid"></div>
+
+    <div class="block">
+      <h3>Dynamic profile — what NeoSoul noticed</h3>
+      <div id="memList"></div>
+      <p class="note" id="memNote"></p>
+    </div>
+  </section>
+
+</div>
+
+<div class="paywall" id="paywall" hidden>
+  <div class="pw-box">
+    <h3>Your free 14 days are up</h3>
+    <p>Everything you have written is safe and still here. Continue for &pound;10 a month,
+       cancel any time.</p>
+    <button class="btn" id="pwGo">Continue for &pound;10 a month</button>
+  </div>
+</div>
+
+<script type="module">
+/* ═══════════ lunar data: 248 precomputed events, 2026–2035 ═══════════ */
+const DECK = [{"id":"M00","name":"The Fool","group":"Major Arcana","line":"Begin before the whole path appears.","theme":"fresh start; openness; calculated risk","shadow":"Confusing freedom with carelessness","question":"Is this freedom, or am I avoiding something?","action":"Take one reversible first step","love":"Make a low-pressure introduction","work":"Test a small idea before committing","symbols":"white dog, cliff, travel bundle, white rose, young traveller at sunrise"},{"id":"M01","name":"The Magician","group":"Major Arcana","line":"Turn what you have into what you need.","theme":"resourcefulness; skill; intention","shadow":"Manipulation or scattered intention","question":"What do I actually intend here — and have I said it?","action":"List three resources and use one today","love":"State what you can genuinely offer","work":"Combine the tools already available","symbols":"one wand, cup, sword and pentacle on an alchemist table, one hand raised one lowered, infinity light"},{"id":"M02","name":"The High Priestess","group":"Major Arcana","line":"Let quiet reveal what urgency conceals.","theme":"intuition; privacy; hidden information","shadow":"Silence mistaken for proof","question":"What do I already know but have not admitted knowing?","action":"Separate a hunch from an observed fact","love":"Allow space, then ask rather than assume","work":"Gather missing information quietly","symbols":"moon, veiled scroll, two contrasting pillars, pomegranate veil, serene woman"},{"id":"M03","name":"The Empress","group":"Major Arcana","line":"Give your idea the care that helps it grow.","theme":"nurture; creativity; growth","shadow":"Overgiving or smothering","question":"What am I growing, and am I letting it take its own time?","action":"Tend one neglected need","love":"Offer care that respects autonomy","work":"Protect time and resources for growth","symbols":"woman in living wheat garden, twelve-star crown, Venus pendant"},{"id":"M04","name":"The Emperor","group":"Major Arcana","line":"Build boundaries that protect what matters.","theme":"structure; authority; responsibility","shadow":"Control that blocks flexibility","question":"Where am I holding order, and where is it holding me?","action":"Write one clear operating rule","love":"Clarify a boundary kindly","work":"Define ownership and responsibilities","symbols":"male ruler, four ram carvings, stone seat, mountain, orb and sceptre"},{"id":"M05","name":"The Hierophant","group":"Major Arcana","line":"Choose consciously what you inherit.","theme":"tradition; learning; shared values","shadow":"Following convention without choice","question":"Whose rule am I following, and did I ever choose it?","action":"Question one rule and keep what helps","love":"Discuss inherited relationship expectations","work":"Find a teacher or tested practice","symbols":"teacher and two learners, crossed keys, woven ceremonial cloth"},{"id":"M06","name":"The Lovers","group":"Major Arcana","line":"Let your choices reflect your deepest values.","theme":"values; union; meaningful choice","shadow":"Choosing approval over integrity","question":"What am I really choosing between?","action":"Name the value behind a decision","love":"Check alignment as well as attraction","work":"Choose partners whose values fit yours","symbols":"adult couple beneath angel, separate fruit and flame trees, mountain"},{"id":"M07","name":"The Chariot","group":"Major Arcana","line":"Give your determination a clear direction.","theme":"direction; will; coordination","shadow":"Speed without direction","question":"I have momentum — but do I still want where it leads?","action":"Choose one destination for this week","love":"Move deliberately without forcing closeness","work":"Coordinate competing priorities","symbols":"driver with star canopy, black and white sphinxes, chariot, bright city"},{"id":"M08","name":"Strength","group":"Major Arcana","line":"Meet intensity with steady kindness.","theme":"courage; patience; self-regulation","shadow":"Suppression disguised as calm","question":"Where would the gentler response actually be the stronger one?","action":"Pause before a difficult reply","love":"Stay kind while holding a boundary","work":"Respond firmly without escalation","symbols":"woman gently resting hands on lion jaw, infinity, flowers"},{"id":"M09","name":"The Hermit","group":"Major Arcana","line":"Step back until your own voice becomes clear.","theme":"solitude; guidance; discernment","shadow":"Withdrawal that avoids connection","question":"What becomes clearer when no one else is in the room?","action":"Spend ten quiet minutes writing","love":"Ask for reflective time clearly","work":"Step away from noise to review","symbols":"older man on snowy mountain carrying six-point-star lantern and staff"},{"id":"M10","name":"Wheel of Fortune","group":"Major Arcana","line":"Find your agency inside the changing cycle.","theme":"change; cycles; uncertainty","shadow":"Passivity or trying to control everything","question":"What here is genuinely mine to turn?","action":"Write one contingency plan","love":"Notice changing patterns without blaming fate","work":"Prepare for factors outside your control","symbols":"floating wheel with four winged creatures and open books among bright clouds"},{"id":"M11","name":"Justice","group":"Major Arcana","line":"Look honestly at both action and consequence.","theme":"fairness; accountability; evidence","shadow":"Self-justification or harsh judgement","question":"What am I leaving out of the account?","action":"Correct one imbalance you can influence","love":"Consider both contributions and consequences","work":"Check facts and agreements","symbols":"woman holding upright sword and balanced scales, red cloth, two pillars"},{"id":"M12","name":"The Hanged Man","group":"Major Arcana","line":"A different view may change the question.","theme":"pause; surrender; new perspective","shadow":"Waiting with no purpose","question":"What if nothing moves today — what does the waiting show me?","action":"Describe the issue from another viewpoint","love":"Stop pushing for an immediate answer","work":"Reframe a stalled problem","symbols":"calm man suspended by one ankle from living tree, bent other leg, halo, no injury"},{"id":"M13","name":"Death","group":"Major Arcana","line":"Let an ending make room for another beginning.","theme":"ending; transition; release","shadow":"Holding on only because of past investment","question":"What has already ended that I am still describing as ongoing?","action":"Close one unfinished chapter practically","love":"Accept changed circumstances without predicting loss","work":"Retire what no longer serves the work","symbols":"white horse and symbolic armoured skeleton, black flag with white flower, sunrise between towers, no gore"},{"id":"M14","name":"Temperance","group":"Major Arcana","line":"Find the proportion that lets both parts thrive.","theme":"balance; integration; moderation","shadow":"Extremes or forced compromise","question":"Which extreme am I defending, and what would the mixture cost?","action":"Make one small proportional adjustment","love":"Find a pace both can sustain","work":"Adjust the mix of effort and recovery","symbols":"winged figure pouring between two cups, one foot water one land, iris flowers"},{"id":"M15","name":"The Devil","group":"Major Arcana","line":"Notice where desire has become a bargain.","theme":"attachment; temptation; constrained choice","shadow":"Denial of an unhealthy bargain","question":"What do I call impossible to leave that is only a habit?","action":"Identify one choice you still retain","love":"Notice dependency without assigning blame","work":"Review the hidden cost of a reward","symbols":"two adults with loose removable chains, horned symbolic shadow, visible freedom, tasteful clothed"},{"id":"M16","name":"The Tower","group":"Major Arcana","line":"Rebuild around the truth that has emerged.","theme":"disruption; revelation; unstable structure","shadow":"Rebuilding the same weak foundation","question":"What am I about to rebuild exactly as it was?","action":"Stabilise one practical thing first","love":"Face a revealed problem honestly","work":"Reassess a failed assumption","symbols":"lightning opens stone tower, falling crown, storm clearing, no injured people"},{"id":"M17","name":"The Star","group":"Major Arcana","line":"Give hope one small place to take root.","theme":"hope; renewal; openness","shadow":"Hope replacing practical care","question":"Where could hope go if I gave it one small place?","action":"Choose one nourishing action","love":"Let trust return through small evidence","work":"Invest in a realistic recovery step","symbols":"woman in flowing gown beside pool, two water vessels, large star and seven smaller stars"},{"id":"M18","name":"The Moon","group":"Major Arcana","line":"Separate what you sense from what you know.","theme":"uncertainty; imagination; projection","shadow":"Treating anxiety as evidence","question":"What am I filling in because I cannot see it clearly?","action":"Write what is known and unknown separately","love":"Ask directly instead of reading hidden motives","work":"Verify unclear information","symbols":"dog and wolf, crayfish emerging, winding path between towers, luminous moon"},{"id":"M19","name":"The Sun","group":"Major Arcana","line":"Allow yourself to receive what is already good.","theme":"joy; clarity; vitality","shadow":"Pressure to stay positive","question":"What is simply good here that I keep looking behind?","action":"Name and enjoy one real good thing","love":"Enjoy connection without testing it","work":"Share a clear success","symbols":"joyful child riding white horse safely, sunflowers, red banner, sun"},{"id":"M20","name":"Judgement","group":"Major Arcana","line":"Answer the call you can no longer ignore.","theme":"awakening; review; response","shadow":"Self-condemnation instead of learning","question":"What am I ready to answer honestly, without defending it?","action":"Make one overdue decision thoughtfully","love":"Respond to what past experience taught you","work":"Use feedback to change course","symbols":"angel trumpet, people rising from open symbolic stone chambers into light, renewal"},{"id":"M21","name":"The World","group":"Major Arcana","line":"Honour what is complete before beginning again.","theme":"completion; integration; belonging","shadow":"Rushing past completion","question":"What is finishing, and am I letting it finish?","action":"Record what you learned","love":"Acknowledge a shared milestone","work":"Document and close a completed project","symbols":"dancer clothed in silk within laurel oval, two batons, four corner creatures"},{"id":"W01","name":"Ace of Wands","group":"Wands","line":"Give the spark somewhere real to land.","theme":"inspiration; potential","shadow":"Chasing every spark","question":"What wants starting before I have the whole plan?","action":"Start a ten-minute experiment","love":"Invite a fresh shared experience","work":"Prototype the idea","symbols":"hand holding one budding wand above sunlit valley"},{"id":"W02","name":"Two of Wands","group":"Wands","line":"Choose a direction beyond familiar ground.","theme":"planning; horizons","shadow":"Planning forever","question":"What am I deciding from the map instead of the ground?","action":"Choose a next milestone","love":"Discuss where the connection is heading","work":"Compare two realistic directions","symbols":"person with globe at parapet, two wands, sea"},{"id":"W03","name":"Three of Wands","group":"Wands","line":"Make space for what your effort brings back.","theme":"expansion; anticipation","shadow":"Expecting results without groundwork","question":"What have I set in motion that I now have to wait out?","action":"Make one useful follow-up","love":"Allow room for independent growth","work":"Follow up on work already sent out","symbols":"three wands, observer watching three distant ships"},{"id":"W04","name":"Four of Wands","group":"Wands","line":"Pause to celebrate the home you are building.","theme":"celebration; stability","shadow":"Appearance of harmony","question":"What is stable enough to be enjoyed rather than guarded?","action":"Celebrate a concrete milestone","love":"Mark a shared moment","work":"Recognise team progress","symbols":"four wands supporting flower garland, dancers"},{"id":"W05","name":"Five of Wands","group":"Wands","line":"Let disagreement sharpen the work, not the wound.","theme":"friction; competition","shadow":"Unproductive conflict","question":"Is this friction useful, or am I just in the room?","action":"Agree on the question being debated","love":"Distinguish disagreement from rejection","work":"Clarify competing goals","symbols":"five people practising with five wooden staffs, playful contest"},{"id":"W06","name":"Six of Wands","group":"Wands","line":"Receive recognition without losing your direction.","theme":"recognition; confidence","shadow":"Dependence on applause","question":"What am I being seen for, and is it what I value?","action":"Name a contribution publicly where appropriate","love":"Appreciate a partner sincerely","work":"Accept credit and share it fairly","symbols":"rider with laurel crown and six wands in celebratory procession"},{"id":"W07","name":"Seven of Wands","group":"Wands","line":"Protect your position without fighting every voice.","theme":"conviction; defence","shadow":"Fighting every challenge","question":"What am I defending, and does it still need defending?","action":"Say one clear, calm no","love":"Protect a stated boundary","work":"Defend the priority that matters","symbols":"person on hill holds one staff against six below"},{"id":"W08","name":"Eight of Wands","group":"Wands","line":"Be ready to act when movement arrives.","theme":"momentum; communication","shadow":"Haste","question":"What is moving faster than my attention?","action":"Respond to a pending message","love":"Communicate promptly and clearly","work":"Prepare for quick developments","symbols":"exactly eight flying wooden wands over clear river, no people"},{"id":"W09","name":"Nine of Wands","group":"Wands","line":"Protect your energy without closing every door.","theme":"resilience; caution","shadow":"Hypervigilance","question":"I am tired — is this protection, or is it a wall?","action":"Plan a realistic recovery break","love":"Let experience inform rather than wall off trust","work":"Protect capacity after sustained effort","symbols":"weary clothed guardian with one wand and eight planted behind"},{"id":"W10","name":"Ten of Wands","group":"Wands","line":"Ask which burdens are truly yours to carry.","theme":"burden; overcommitment","shadow":"Martyrdom","question":"What am I carrying that was never assigned to me?","action":"Drop one unnecessary obligation","love":"Review unequal emotional labour","work":"Delegate or remove a task","symbols":"person carrying ten wooden wands toward village"},{"id":"W11","name":"Page of Wands","group":"Wands","line":"Follow curiosity far enough to learn something.","theme":"discovery; enthusiasm","shadow":"Enthusiasm without follow-through","question":"What am I curious about before I am good at it?","action":"Ask one beginner question","love":"Bring curiosity to a conversation","work":"Learn through a small trial","symbols":"young adult examining budding staff in desert"},{"id":"W12","name":"Knight of Wands","group":"Wands","line":"Give your passion a pace it can sustain.","theme":"adventure; impulsiveness","shadow":"Recklessness","question":"Where is my energy aimed, and did I aim it?","action":"Finish one step before the next","love":"Balance excitement with consistency","work":"Channel energy into a defined goal","symbols":"energetic male rider and wand, orange desert, salamander embroidery"},{"id":"W13","name":"Queen of Wands","group":"Wands","line":"Let warmth and confidence share the same seat.","theme":"warmth; independence","shadow":"Confidence becoming performance","question":"What do I bring into a room without trying?","action":"Show one piece of your work","love":"Be visible without seeking permission","work":"Encourage others while trusting your skill","symbols":"confident woman with wand, sunflower and black cat"},{"id":"W14","name":"King of Wands","group":"Wands","line":"Lead with a vision others can grow within.","theme":"vision; leadership","shadow":"Domination","question":"What am I leading, and am I doing it or just holding it?","action":"Explain why the goal matters","love":"Discuss a shared direction","work":"Lead with clear purpose","symbols":"mature male leader, living wand, lion and salamander motifs"},{"id":"C01","name":"Ace of Cups","group":"Cups","line":"Let yourself be touched by a new beginning.","theme":"emotional opening; receptivity","shadow":"Overflow without boundaries","question":"What am I being offered that I have not accepted?","action":"Name what you feel","love":"Notice a new feeling without promising an outcome","work":"Welcome an inspiring collaboration","symbols":"single overflowing cup, dove, five water streams, lotus"},{"id":"C02","name":"Two of Cups","group":"Cups","line":"Notice what each person brings to the connection.","theme":"reciprocity; partnership","shadow":"One-sided giving","question":"What is each of us actually bringing?","action":"Make one balanced invitation","love":"Look for mutual effort","work":"Clarify each partner's contribution","symbols":"man and woman exchange two cups, caduceus and winged lion motif"},{"id":"C03","name":"Three of Cups","group":"Cups","line":"Make room for joy that is shared.","theme":"friendship; community","shadow":"Exclusion or excess","question":"Who have I not told, and why not?","action":"Arrange a small shared joy","love":"Seek supportive shared time","work":"Connect with trusted colleagues","symbols":"three friends raising three cups in fruit orchard"},{"id":"C04","name":"Four of Cups","group":"Cups","line":"Look again at the offer you almost missed.","theme":"disengagement; reconsideration","shadow":"Refusing everything automatically","question":"What is in front of me that I have stopped seeing?","action":"Look again at one offer","love":"Notice whether you are emotionally available","work":"Review an overlooked option","symbols":"seated person, three cups before them and fourth offered from cloud"},{"id":"C05","name":"Five of Cups","group":"Cups","line":"Grieve what spilled; notice what remains.","theme":"grief; disappointment","shadow":"Fixating only on loss","question":"What remains, once I have finished counting the loss?","action":"Name one loss and one remaining resource","love":"Make room for hurt and remaining support","work":"Learn from a setback","symbols":"three spilled cups, two upright behind figure, bridge"},{"id":"C06","name":"Six of Cups","group":"Cups","line":"Receive the memory without moving back into it.","theme":"memory; kindness; roots","shadow":"Idealising the past","question":"What am I visiting in the past, and what am I avoiding now?","action":"Offer a simple kindness","love":"Notice how the past colours expectations","work":"Reuse a helpful earlier lesson","symbols":"two children in safe sunny courtyard, six flower-filled cups"},{"id":"C07","name":"Seven of Cups","group":"Cups","line":"Choose the possibility you can bring into reality.","theme":"options; fantasy; discernment","shadow":"Wishful thinking","question":"Which of these options is real?","action":"Compare two options using evidence","love":"Separate imagined potential from behaviour","work":"Check feasibility of attractive options","symbols":"seven cups each with distinct symbolic vision above cloud"},{"id":"C08","name":"Eight of Cups","group":"Cups","line":"Leave room for a life beyond what is familiar.","theme":"departure; seeking depth","shadow":"Leaving to avoid every difficulty","question":"What am I leaving, and am I calling it something else?","action":"Name what would make staying worthwhile","love":"Consider whether needs are being met","work":"Review work that feels depleted","symbols":"traveller leaving eight stacked cups toward moonlit mountain"},{"id":"C09","name":"Nine of Cups","group":"Cups","line":"Enjoy enough without asking it to become everything.","theme":"contentment; satisfaction","shadow":"Complacency","question":"What did I want, and does having it feel like I expected?","action":"Define enough for today","love":"Enjoy closeness without demanding perfection","work":"Acknowledge a goal achieved","symbols":"content person beside nine cups, abundant simple meal"},{"id":"C10","name":"Ten of Cups","group":"Cups","line":"Build belonging through the way you live together.","theme":"belonging; shared fulfilment","shadow":"Idealising the perfect family","question":"What is good here that I am postponing noticing?","action":"Create a small shared ritual","love":"Build everyday emotional safety","work":"Align success with life beyond work","symbols":"family below rainbow containing ten cups, home and river"},{"id":"C11","name":"Page of Cups","group":"Cups","line":"Listen for the feeling behind the surprise.","theme":"sensitivity; surprise","shadow":"Emotional naivety","question":"What am I feeling before I explain it away?","action":"Write a feeling in plain words","love":"Express a feeling gently","work":"Stay open to unexpected ideas","symbols":"young adult holding cup containing curious fish"},{"id":"C12","name":"Knight of Cups","group":"Cups","line":"Let sincere feeling become a thoughtful gesture.","theme":"romance; invitation; ideals","shadow":"Promises without action","question":"Is this an invitation, or a performance of one?","action":"Offer one genuine invitation","love":"Match a thoughtful gesture with sincerity","work":"Make a considered creative proposal","symbols":"male knight on calm white horse offering cup"},{"id":"C13","name":"Queen of Cups","group":"Cups","line":"Hold your feelings with care and clear edges.","theme":"empathy; emotional awareness","shadow":"Porous boundaries","question":"Whose feeling am I holding, and is it mine to hold?","action":"Ask what support is actually wanted","love":"Listen without absorbing everything","work":"Notice emotional dynamics at work","symbols":"woman with ornate closed cup on shore, calm water"},{"id":"C14","name":"King of Cups","group":"Cups","line":"Stay present without being swept away.","theme":"emotional steadiness; diplomacy","shadow":"Detachment presented as maturity","question":"Can I stay steady without going cold?","action":"Respond after settling yourself","love":"Remain present during strong feelings","work":"Handle tension calmly","symbols":"man on seat above ocean, cup and sceptre, ship and fish"},{"id":"S01","name":"Ace of Swords","group":"Swords","line":"Name the truth that brings the picture into focus.","theme":"clarity; breakthrough","shadow":"Sharpness without care","question":"What is the honest version, before I soften it?","action":"Write a clear one-sentence statement","love":"Say the essential truth respectfully","work":"Define the actual problem","symbols":"single upright sword through crown, olive and palm"},{"id":"S02","name":"Two of Swords","group":"Swords","line":"Notice the choice that waiting cannot remove.","theme":"indecision; avoidance","shadow":"Stalemate","question":"What am I refusing to look at by refusing to choose?","action":"Set a reasonable decision point","love":"Discuss the choice being postponed","work":"Collect the missing deciding fact","symbols":"blindfolded seated woman holding two crossed swords, sea moon"},{"id":"S03","name":"Three of Swords","group":"Swords","line":"Let the hurt be named before it becomes your story.","theme":"heartache; difficult truth","shadow":"Turning pain into identity","question":"What is the hurt, plainly, before it becomes a story?","action":"Tell a trusted person what hurts","love":"Name the hurt without inventing motives","work":"Address disappointing feedback","symbols":"sculptural red glass heart with three swords through it, rain, no body"},{"id":"S04","name":"Four of Swords","group":"Swords","line":"Rest before you ask yourself for another answer.","theme":"rest; recovery","shadow":"Avoidance","question":"What would stopping actually cost me?","action":"Take a genuine quiet break","love":"Ask for a pause with a return point","work":"Protect recovery time","symbols":"peaceful reclining stone figure, three swords above one below"},{"id":"S05","name":"Five of Swords","group":"Swords","line":"Ask what winning this conflict would cost.","theme":"conflict; costly victory","shadow":"Humiliation","question":"What am I winning, and what does winning cost here?","action":"Choose one de-escalating action","love":"Ask whether being right helps the relationship","work":"Review the cost of a win","symbols":"one person gathering three swords, two on ground, two figures departing"},{"id":"S06","name":"Six of Swords","group":"Swords","line":"Allow support to carry you toward calmer ground.","theme":"transition; support","shadow":"Expecting change to erase all feelings","question":"What am I taking with me that I should leave?","action":"Identify one source of support","love":"Accept help during change","work":"Plan a manageable transition","symbols":"boat with six swords, ferryman and two passengers, smooth water"},{"id":"S07","name":"Seven of Swords","group":"Swords","line":"Choose a strategy you can stand behind.","theme":"strategy; discretion","shadow":"Deception","question":"What am I handling indirectly that I could say straight?","action":"Choose a transparent strategy","love":"Be honest about what you are withholding","work":"Check the ethics of a shortcut","symbols":"person carrying five swords leaving two, campsite"},{"id":"S08","name":"Eight of Swords","group":"Swords","line":"Test the limit before accepting it as permanent.","theme":"restriction; perspective","shadow":"Learned helplessness","question":"Which of these walls did I build?","action":"Try one safe reversible option","love":"Notice assumptions limiting your choices","work":"Test an apparent constraint","symbols":"loosely bound blindfolded woman in clearing of eight swords, open path"},{"id":"S09","name":"Nine of Swords","group":"Swords","line":"Bring the fear into daylight and conversation.","theme":"worry; rumination","shadow":"Catastrophising","question":"Is this happening, or am I rehearsing it?","action":"Write one concern and one available action","love":"Speak about fear without accusing","work":"Break anxious speculation into facts","symbols":"person awake in bed, nine swords on wall, dawn at edge"},{"id":"S10","name":"Ten of Swords","group":"Swords","line":"An ending does not have to define what comes next.","theme":"finality; exhaustion","shadow":"Treating an ending as permanent defeat","question":"It is over — what does that free me from?","action":"Plan one recovery step","love":"Recognise when an old pattern is finished","work":"Stop investing in a concluded route","symbols":"ten swords piercing abandoned cloak on ground, sunrise, no body or gore"},{"id":"S11","name":"Page of Swords","group":"Swords","line":"Ask the question that improves your understanding.","theme":"inquiry; alertness","shadow":"Surveillance or gossip","question":"What am I asking about, and what am I really asking?","action":"Ask for clarification","love":"Ask with curiosity rather than suspicion","work":"Check a claim","symbols":"alert young adult with raised sword, windswept grass"},{"id":"S12","name":"Knight of Swords","group":"Swords","line":"Check your direction before increasing your speed.","theme":"urgency; assertiveness","shadow":"Aggression","question":"What am I rushing that deserves a slower question?","action":"Review the goal before acting","love":"Slow down before making a forceful demand","work":"Check direction before accelerating","symbols":"male rider charging with upright sword through wind"},{"id":"S13","name":"Queen of Swords","group":"Swords","line":"Speak clearly while leaving room for humanity.","theme":"discernment; independence","shadow":"Cynicism","question":"Where is my clarity useful, and where is it just sharp?","action":"State a boundary without a long defence","love":"Combine honest speech with compassion","work":"Apply a clear standard","symbols":"woman with upright sword and open hand, butterfly motifs"},{"id":"S14","name":"King of Swords","group":"Swords","line":"Let sound judgement guide the next decision.","theme":"reason; integrity","shadow":"Cold authority","question":"What principle am I applying, and to whom?","action":"Write the decision criteria","love":"Make decisions with fairness and care","work":"Use evidence and consistent standards","symbols":"mature man with sword, blue sky, balanced frontal composition"},{"id":"P01","name":"Ace of Pentacles","group":"Pentacles","line":"Give the opportunity a practical first step.","theme":"opportunity; practical potential","shadow":"Potential assumed to be guaranteed","question":"What practical thing is actually available to me now?","action":"Take one practical first step","love":"Make care concrete","work":"Assess a tangible opportunity","symbols":"hand presenting one gold pentacle over garden arch"},{"id":"P02","name":"Two of Pentacles","group":"Pentacles","line":"Create a rhythm that can hold your priorities.","theme":"adaptability; balance","shadow":"Constant juggling","question":"What am I balancing that could simply be put down?","action":"Adjust this week's schedule","love":"Coordinate time and energy","work":"Rebalance competing commitments","symbols":"juggler with two pentacles joined by infinity, ships on waves"},{"id":"P03","name":"Three of Pentacles","group":"Pentacles","line":"Let different skills make the work stronger.","theme":"craft; teamwork","shadow":"Poor coordination","question":"What am I building with other people, and do we agree on it?","action":"Ask for specific feedback","love":"Value complementary contributions","work":"Seek skilled collaboration","symbols":"three artisans collaborating on arch bearing three pentacles"},{"id":"P04","name":"Four of Pentacles","group":"Pentacles","line":"Notice when protection becomes holding too tightly.","theme":"security; possession","shadow":"Rigidity","question":"What am I holding tightly, and what is it costing to hold?","action":"Make one small flexible adjustment","love":"Notice fear beneath possessiveness","work":"Review what you are protecting","symbols":"person with four pentacles at head chest and feet, city"},{"id":"P05","name":"Five of Pentacles","group":"Pentacles","line":"Look for support even when you feel outside it.","theme":"hardship; exclusion","shadow":"Isolation","question":"What help exists that I have not asked for?","action":"Identify an accessible support source","love":"Let someone know you need support","work":"Look for practical assistance","symbols":"two travellers passing lit sanctuary with five pentacles, snow"},{"id":"P06","name":"Six of Pentacles","group":"Pentacles","line":"Give and receive with dignity on both sides.","theme":"generosity; exchange","shadow":"Power imbalance","question":"Who is giving and who is receiving — and is it even?","action":"Offer or request help clearly","love":"Discuss reciprocity without keeping a hostile score","work":"Clarify fair terms of exchange","symbols":"person with scales sharing coins, six pentacles above"},{"id":"P07","name":"Seven of Pentacles","group":"Pentacles","line":"Review the growth before deciding what comes next.","theme":"patience; assessment","shadow":"Sunk-cost thinking","question":"What have I planted that is not ready to judge yet?","action":"Set a review date and criterion","love":"Review growth over time","work":"Evaluate effort against results","symbols":"gardener leaning on hoe studying seven pentacles on vine"},{"id":"P08","name":"Eight of Pentacles","group":"Pentacles","line":"Let deliberate practice shape what you become.","theme":"practice; skill","shadow":"Perfectionism","question":"What am I practising, and am I practising it or repeating it?","action":"Do one focused practice session","love":"Show care through consistent action","work":"Practise one specific skill","symbols":"craftsperson engraving eight pentacles at bright workbench"},{"id":"P09","name":"Nine of Pentacles","group":"Pentacles","line":"Enjoy what your patience has made possible.","theme":"independence; earned ease","shadow":"Isolation through self-sufficiency","question":"What have I made for myself that I can enjoy without apology?","action":"Enjoy a result of your effort","love":"Keep personal autonomy within closeness","work":"Value what you have built","symbols":"woman in vineyard with falcon, nine pentacles, snail"},{"id":"P10","name":"Ten of Pentacles","group":"Pentacles","line":"Build something that can care for more than you.","theme":"legacy; continuity","shadow":"Tradition overriding individual needs","question":"What am I building that outlasts this season?","action":"Document something worth preserving","love":"Discuss long-term shared expectations","work":"Consider sustainability and succession","symbols":"three generations with two dogs under arch bearing ten pentacles"},{"id":"P11","name":"Page of Pentacles","group":"Pentacles","line":"Become a student of the opportunity before you.","theme":"study; grounded ambition","shadow":"Endless preparation","question":"What would I learn if I began badly?","action":"Research one concrete next step","love":"Learn what makes the connection work","work":"Study the practical requirements","symbols":"young adult studying pentacle in fresh green field"},{"id":"P12","name":"Knight of Pentacles","group":"Pentacles","line":"Trust the value of a step repeated with care.","theme":"reliability; routine","shadow":"Stagnation","question":"What steady thing would matter more than a fast one?","action":"Complete today's steady step","love":"Follow through on a small promise","work":"Build a repeatable process","symbols":"male rider on still dark horse holding pentacle, ploughed field"},{"id":"P13","name":"Queen of Pentacles","group":"Pentacles","line":"Make care tangible in your everyday world.","theme":"care; practicality","shadow":"Overfunctioning","question":"What am I tending, and who else is it holding up?","action":"Improve one daily comfort","love":"Make everyday care reciprocal","work":"Support a sustainable working environment","symbols":"woman cradling pentacle in lush garden with rabbit"},{"id":"P14","name":"King of Pentacles","group":"Pentacles","line":"Use stability to create lasting value.","theme":"stewardship; stability","shadow":"Material status as self-worth","question":"What have I built, and am I still choosing it?","action":"Review one long-term commitment","love":"Build dependable support without control","work":"Manage resources responsibly","symbols":"mature man with pentacle, bull motifs, grapes and solid home"}];
+const EV = [["f","2026-01-03T10:02","Cancer"],["n","2026-01-18T19:52","Capricorn"],["f","2026-02-01T22:09","Leo"],["n","2026-02-17T12:01","Aquarius"],["f","2026-03-03T11:37","Virgo"],["n","2026-03-19T01:23","Pisces"],["f","2026-04-02T02:11","Libra"],["n","2026-04-17T11:51","Aries"],["f","2026-05-01T17:23","Scorpio"],["n","2026-05-16T20:01","Taurus"],["f","2026-05-31T08:45","Sagittarius"],["n","2026-06-15T02:54","Gemini"],["f","2026-06-29T23:56","Capricorn"],["n","2026-07-14T09:43","Cancer"],["f","2026-07-29T14:35","Aquarius"],["n","2026-08-12T17:36","Leo"],["f","2026-08-28T04:18","Pisces"],["n","2026-09-11T03:27","Virgo"],["f","2026-09-26T16:49","Aries"],["n","2026-10-10T15:50","Libra"],["f","2026-10-26T04:11","Taurus"],["n","2026-11-09T07:02","Scorpio"],["f","2026-11-24T14:53","Gemini"],["n","2026-12-09T00:51","Sagittarius"],["f","2026-12-24T01:28","Cancer"],["n","2027-01-07T20:24","Capricorn"],["f","2027-01-22T12:17","Leo"],["n","2027-02-06T15:56","Aquarius"],["f","2027-02-20T23:23","Virgo"],["n","2027-03-08T09:29","Pisces"],["f","2027-03-22T10:43","Libra"],["n","2027-04-06T23:51","Aries"],["f","2027-04-20T22:27","Scorpio"],["n","2027-05-06T10:58","Taurus"],["f","2027-05-20T10:59","Scorpio"],["n","2027-06-04T19:40","Gemini"],["f","2027-06-19T00:44","Sagittarius"],["n","2027-07-04T03:02","Cancer"],["f","2027-07-18T15:44","Capricorn"],["n","2027-08-02T10:05","Leo"],["f","2027-08-17T07:28","Aquarius"],["n","2027-08-31T17:41","Virgo"],["f","2027-09-15T23:03","Pisces"],["n","2027-09-30T02:36","Libra"],["f","2027-10-15T13:46","Aries"],["n","2027-10-29T13:36","Scorpio"],["f","2027-11-14T03:25","Taurus"],["n","2027-11-28T03:24","Sagittarius"],["f","2027-12-13T16:08","Gemini"],["n","2027-12-27T20:12","Capricorn"],["f","2028-01-12T04:03","Cancer"],["n","2028-01-26T15:12","Aquarius"],["f","2028-02-10T15:03","Leo"],["n","2028-02-25T10:37","Pisces"],["f","2028-03-11T01:06","Virgo"],["n","2028-03-26T04:31","Aries"],["f","2028-04-09T10:26","Libra"],["n","2028-04-24T19:46","Taurus"],["f","2028-05-08T19:48","Scorpio"],["n","2028-05-24T08:16","Gemini"],["f","2028-06-07T06:08","Sagittarius"],["n","2028-06-22T18:27","Cancer"],["f","2028-07-06T18:10","Capricorn"],["n","2028-07-22T03:01","Cancer"],["f","2028-08-05T08:09","Aquarius"],["n","2028-08-20T10:43","Leo"],["f","2028-09-03T23:47","Pisces"],["n","2028-09-18T18:23","Virgo"],["f","2028-10-03T16:24","Aries"],["n","2028-10-18T02:56","Libra"],["f","2028-11-02T09:17","Taurus"],["n","2028-11-16T13:18","Scorpio"],["f","2028-12-02T01:40","Gemini"],["n","2028-12-16T02:06","Sagittarius"],["f","2028-12-31T16:48","Cancer"],["n","2029-01-14T17:24","Capricorn"],["f","2029-01-30T06:03","Leo"],["n","2029-02-13T10:31","Aquarius"],["f","2029-02-28T17:10","Virgo"],["n","2029-03-15T04:19","Pisces"],["f","2029-03-30T02:26","Libra"],["n","2029-04-13T21:40","Aries"],["f","2029-04-28T10:36","Scorpio"],["n","2029-05-13T13:42","Taurus"],["f","2029-05-27T18:37","Sagittarius"],["n","2029-06-12T03:50","Gemini"],["f","2029-06-26T03:22","Capricorn"],["n","2029-07-11T15:51","Cancer"],["f","2029-07-25T13:35","Aquarius"],["n","2029-08-10T01:55","Leo"],["f","2029-08-24T01:51","Pisces"],["n","2029-09-08T10:44","Virgo"],["f","2029-09-22T16:29","Pisces"],["n","2029-10-07T19:14","Libra"],["f","2029-10-22T09:27","Aries"],["n","2029-11-06T04:24","Scorpio"],["f","2029-11-21T04:02","Taurus"],["n","2029-12-05T14:52","Sagittarius"],["f","2029-12-20T22:46","Gemini"],["n","2030-01-04T02:49","Capricorn"],["f","2030-01-19T15:54","Cancer"],["n","2030-02-02T16:07","Aquarius"],["f","2030-02-18T06:19","Leo"],["n","2030-03-04T06:34","Pisces"],["f","2030-03-19T17:56","Virgo"],["n","2030-04-02T22:02","Aries"],["f","2030-04-18T03:20","Libra"],["n","2030-05-02T14:12","Taurus"],["f","2030-05-17T11:19","Scorpio"],["n","2030-06-01T06:21","Gemini"],["f","2030-06-15T18:41","Sagittarius"],["n","2030-06-30T21:34","Cancer"],["f","2030-07-15T02:11","Capricorn"],["n","2030-07-30T11:11","Leo"],["f","2030-08-13T10:44","Aquarius"],["n","2030-08-28T23:07","Virgo"],["f","2030-09-11T21:17","Pisces"],["n","2030-09-27T09:54","Libra"],["f","2030-10-11T10:46","Aries"],["n","2030-10-26T20:16","Scorpio"],["f","2030-11-10T03:30","Taurus"],["n","2030-11-25T06:46","Sagittarius"],["f","2030-12-09T22:40","Gemini"],["n","2030-12-24T17:32","Capricorn"],["f","2031-01-08T18:25","Cancer"],["n","2031-01-23T04:30","Aquarius"],["f","2031-02-07T12:46","Leo"],["n","2031-02-21T15:48","Pisces"],["f","2031-03-09T04:29","Virgo"],["n","2031-03-23T03:49","Aries"],["f","2031-04-07T17:21","Libra"],["n","2031-04-21T16:57","Taurus"],["f","2031-05-07T03:39","Scorpio"],["n","2031-05-21T07:17","Gemini"],["f","2031-06-05T11:58","Sagittarius"],["n","2031-06-19T22:24","Gemini"],["f","2031-07-04T19:01","Capricorn"],["n","2031-07-19T13:40","Cancer"],["f","2031-08-03T01:45","Aquarius"],["n","2031-08-18T04:32","Leo"],["f","2031-09-01T09:20","Pisces"],["n","2031-09-16T18:46","Virgo"],["f","2031-09-30T18:57","Aries"],["n","2031-10-16T08:20","Libra"],["f","2031-10-30T07:32","Taurus"],["n","2031-11-14T21:09","Scorpio"],["f","2031-11-28T23:18","Gemini"],["n","2031-12-14T09:05","Sagittarius"],["f","2031-12-28T17:32","Cancer"],["n","2032-01-12T20:06","Capricorn"],["f","2032-01-27T12:52","Leo"],["n","2032-02-11T06:24","Aquarius"],["f","2032-02-26T07:43","Virgo"],["n","2032-03-11T16:24","Pisces"],["f","2032-03-27T00:46","Libra"],["n","2032-04-10T02:39","Aries"],["f","2032-04-25T15:09","Scorpio"],["n","2032-05-09T13:35","Taurus"],["f","2032-05-25T02:37","Sagittarius"],["n","2032-06-08T01:32","Gemini"],["f","2032-06-23T11:32","Capricorn"],["n","2032-07-07T14:41","Cancer"],["f","2032-07-22T18:51","Aquarius"],["n","2032-08-06T05:11","Leo"],["f","2032-08-21T01:46","Aquarius"],["n","2032-09-04T20:56","Virgo"],["f","2032-09-19T09:30","Pisces"],["n","2032-10-04T13:26","Libra"],["f","2032-10-18T18:58","Aries"],["n","2032-11-03T05:44","Scorpio"],["f","2032-11-17T06:42","Taurus"],["n","2032-12-02T20:52","Sagittarius"],["f","2032-12-16T20:48","Gemini"],["n","2033-01-01T10:17","Capricorn"],["f","2033-01-15T13:07","Cancer"],["n","2033-01-30T21:59","Aquarius"],["f","2033-02-14T07:04","Leo"],["n","2033-03-01T08:23","Pisces"],["f","2033-03-16T01:37","Virgo"],["n","2033-03-30T17:51","Aries"],["f","2033-04-14T19:17","Libra"],["n","2033-04-29T02:46","Taurus"],["f","2033-05-14T10:42","Scorpio"],["n","2033-05-28T11:36","Gemini"],["f","2033-06-12T23:19","Sagittarius"],["n","2033-06-26T21:07","Cancer"],["f","2033-07-12T09:28","Capricorn"],["n","2033-07-26T08:12","Leo"],["f","2033-08-10T18:07","Aquarius"],["n","2033-08-24T21:39","Virgo"],["f","2033-09-09T02:20","Pisces"],["n","2033-09-23T13:39","Libra"],["f","2033-10-08T10:58","Aries"],["n","2033-10-23T07:28","Scorpio"],["f","2033-11-06T20:32","Taurus"],["n","2033-11-22T01:39","Sagittarius"],["f","2033-12-06T07:22","Gemini"],["n","2033-12-21T18:46","Capricorn"],["f","2034-01-04T19:47","Cancer"],["n","2034-01-20T10:01","Aquarius"],["f","2034-02-03T10:04","Leo"],["n","2034-02-18T23:10","Pisces"],["f","2034-03-05T02:10","Virgo"],["n","2034-03-20T10:14","Pisces"],["f","2034-04-03T19:18","Libra"],["n","2034-04-18T19:25","Aries"],["f","2034-05-03T12:15","Scorpio"],["n","2034-05-18T03:12","Taurus"],["f","2034-06-02T03:53","Sagittarius"],["n","2034-06-16T10:25","Gemini"],["f","2034-07-01T17:44","Capricorn"],["n","2034-07-15T18:15","Cancer"],["f","2034-07-31T05:54","Aquarius"],["n","2034-08-14T03:53","Leo"],["f","2034-08-29T16:49","Pisces"],["n","2034-09-12T16:13","Virgo"],["f","2034-09-28T02:56","Aries"],["n","2034-10-12T07:32","Libra"],["f","2034-10-27T12:42","Taurus"],["n","2034-11-11T01:16","Scorpio"],["f","2034-11-25T22:32","Gemini"],["n","2034-12-10T20:14","Sagittarius"],["f","2034-12-25T08:54","Cancer"],["n","2035-01-09T15:03","Capricorn"],["f","2035-01-23T20:16","Leo"],["n","2035-02-08T08:22","Aquarius"],["f","2035-02-22T08:53","Virgo"],["n","2035-03-09T23:09","Pisces"],["f","2035-03-23T22:42","Libra"],["n","2035-04-08T10:57","Aries"],["f","2035-04-22T13:20","Scorpio"],["n","2035-05-07T20:03","Taurus"],["f","2035-05-22T04:25","Sagittarius"],["n","2035-06-06T03:20","Gemini"],["f","2035-06-20T19:37","Sagittarius"],["n","2035-07-05T09:59","Cancer"],["f","2035-07-20T10:36","Capricorn"],["n","2035-08-03T17:11","Leo"],["f","2035-08-19T01:00","Aquarius"],["n","2035-09-02T01:59","Virgo"],["f","2035-09-17T14:23","Pisces"],["n","2035-10-01T13:06","Libra"],["f","2035-10-17T02:35","Aries"],["n","2035-10-31T02:58","Scorpio"],["f","2035-11-15T13:48","Taurus"],["n","2035-11-29T19:37","Sagittarius"],["f","2035-12-15T00:33","Gemini"],["n","2035-12-29T14:30","Capricorn"]].map(([k,t,s]) => ({kind:k==='n'?'new':'full', t:new Date(t+'Z'), sign:s}))
+                      .sort((a,b)=>a.t-b.t);
+const SYN = 29.530588853 * 864e5;
+
+function around(d){
+  let prevNew=null, nextNew=null, prevFull=null, nextFull=null;
+  for (const e of EV){
+    if (e.kind==='new'){ if (e.t<=d) prevNew=e; else if(!nextNew) nextNew=e; }
+    else             { if (e.t<=d) prevFull=e; else if(!nextFull) nextFull=e; }
+  }
+  return {prevNew,nextNew,prevFull,nextFull};
+}
+function lunar(d){
+  const a = around(d);
+  if (!a.prevNew || !a.nextNew) return null;
+  const len = a.nextNew.t - a.prevNew.t;
+  const age = (d - a.prevNew.t) / len;              // 0..1 through the cycle
+  const illum = (1 - Math.cos(age*2*Math.PI)) / 2;
+  const names = [['New moon','RESET'],['Waxing crescent','BUILD'],['First quarter','MOVE'],
+                 ['Waxing gibbous','DEVELOP'],['Full moon','SEE'],['Waning gibbous','REFINE'],
+                 ['Last quarter','REVIEW'],['Waning crescent','RELEASE']];
+  const i = Math.floor(((age*8)+0.5)%8);
+  return {age, illum, phase:names[i][0], kw:names[i][1],
+          waxing: age<0.5, dayInCycle: (d-a.prevNew.t)/864e5, cycleLen: len/864e5, ...a};
+}
+function eventOn(dateStr){
+  return EV.find(e => iso(e.t) === dateStr) || null;
+}
+function discCSS(illum, waxing){
+  const p = Math.round(illum*100);
+  const lit = '#FBF4E8', dark = '#B9A7B4';
+  if (p<4)  return `background:${dark}`;
+  if (p>96) return `background:${lit}`;
+  return `background:linear-gradient(${waxing?'90deg':'270deg'},${dark} 0 ${100-p}%,${lit} ${100-p}% 100%)`;
+}
+
+/* ═══════════ storage (mirrors the proposed tables) ═══════════ */
+import { api, requireUser, trialState, MODE } from './neosoul.js';
+
+const USER = await requireUser('join.html');
+if (!USER) throw new Error('redirecting');
+
+let DB = {};
+async function boot(){
+  const [entries, docs] = await Promise.all([
+    api.getEntries(USER.id),
+    api.getDoc(USER.id, 'journal')
+  ]);
+  DB = docs || {};
+  DB.entries = entries || {};
+}
+let saveTimer = null;
+function persist(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    const { entries, ...rest } = DB;
+    await api.putDoc(USER.id, 'journal', rest);
+  }, 200);
+  return true;
+}
+async function saveEntry(date){
+  await api.putEntry(USER.id, date, DB.entries[date] || {});
+}
+await boot();
+DB.profile   = DB.profile   || {name:'', date_of_birth:'', birth_time:'', birth_place:'', timezone:Intl.DateTimeFormat().resolvedOptions().timeZone};
+DB.entries   = DB.entries   || {};      // entry_date -> {mood,energy,journal_text,updated}
+DB.guidance  = DB.guidance  || {};      // guidance_date -> {text,type}
+DB.memories  = DB.memories  || [];      // {id,type,title,confidence,status,user_confirmed,sources:[{date,excerpt}],count}
+DB.reflect   = DB.reflect   || {};      // reflection_date -> {...}
+
+const iso = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const fromIso = s => { const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d,12,0); };
+const pretty = s => fromIso(s).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+const prettyShort = s => fromIso(s).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+const esc = s => (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+let viewDate = iso(new Date());
+const todayIso = iso(new Date());
+
+/* ═══════════ guidance: one per day, never changes on refresh ═══════════ */
+const GENERIC = [
+ ['Notice what you return to without deciding to.','generic'],
+ ['Something you are carrying may not be yours to carry.','generic'],
+ ['The thing you keep postponing is telling you something.','generic'],
+ ['Not every discomfort needs resolving today.','generic'],
+ ['What would change if you assumed you already knew?','generic'],
+ ['Small and finished beats large and pending.','generic'],
+ ['You are allowed to have an ordinary day.','generic']
+];
+const PHASE_LINE = {
+ 'RESET':'A quiet place to set direction, before anything is visible.',
+ 'BUILD':'Beginnings rarely feel like beginnings at the time.',
+ 'MOVE':'Momentum is easier to find than to steer.',
+ 'DEVELOP':'Keep going with what is already working.',
+ 'SEE':'Something has become visible. Look at it before reacting to it.',
+ 'REFINE':'Adjusting is not the same as starting over.',
+ 'REVIEW':'A good moment to check what you assumed.',
+ 'RELEASE':'Clearing space is work, even when it looks like nothing.'
+};
+
+function guidanceFor(dateStr){
+  if (DB.guidance[dateStr]) return DB.guidance[dateStr];
+  const recent = Object.entries(DB.entries)
+    .filter(([d,e]) => d < dateStr && e.journal_text && e.journal_text.trim())
+    .sort((a,b)=>b[0].localeCompare(a[0])).slice(0,7);
+  const themes = DB.memories.filter(m => m.status==='active' && m.type==='theme'
+                                      && m.confidence!=='low');
+  let g;
+  if (themes.length){
+    g = {text:'You have written about '+themes[0].title.toLowerCase()+' more than once recently. '+
+              'Today is a place to look at it again, not to settle it.', type:'personal'};
+  } else if (recent.length >= 3){
+    g = {text:'You have written '+recent.length+' of the last seven days. '+
+              'Notice whether the same thing keeps appearing.', type:'personal'};
+  } else {
+    const l = lunar(fromIso(dateStr));
+    if (l && PHASE_LINE[l.kw]) g = {text:PHASE_LINE[l.kw], type:'lunar'};
+    else { const i = Math.abs(fromIso(dateStr).getTime()/864e5|0) % GENERIC.length;
+           g = {text:GENERIC[i][0], type:'generic'}; }
+  }
+  DB.guidance[dateStr] = g; persist(); return g;
+}
+
+/* ═══════════ TODAY ═══════════ */
+const note = document.getElementById('note');
+
+function renderToday(){
+  const e = DB.entries[viewDate] || {};
+  document.getElementById('tDate').textContent = pretty(viewDate);
+  document.getElementById('tLab').textContent =
+    viewDate===todayIso ? 'Today' : (viewDate>todayIso ? 'Upcoming' : 'Earlier');
+  document.getElementById('nextDay').disabled = viewDate >= todayIso;
+  document.getElementById('jumpToday').style.visibility = viewDate===todayIso?'hidden':'visible';
+
+  const l = lunar(fromIso(viewDate));
+  const ev = eventOn(viewDate);
+  document.getElementById('tMoon').innerHTML = l ?
+    `<span class="disc" style="${discCSS(l.illum,l.waxing)}"></span>
+     <span><b>${l.phase}</b> &middot; ${Math.round(l.illum*100)}% lit &middot;
+     day ${l.dayInCycle.toFixed(0)} of ${l.cycleLen.toFixed(1)}</span>
+     <span class="kw">${l.kw}</span>
+     ${ev?`<span style="color:var(--mauve)">${ev.kind==='new'?'New moon':'Full moon'} in ${ev.sign}</span>`:''}` : '';
+
+  // card of the day — fixed per date, deterministic
+  const dnum = Math.floor(fromIso(viewDate).getTime()/864e5);
+  const card = DECK[((dnum*31)%DECK.length+DECK.length)%DECK.length];
+  document.getElementById('rName').textContent   = card.name;
+  document.getElementById('rTheme').textContent  = card.theme;
+  document.getElementById('rQ').textContent      = card.question;
+  document.getElementById('rShadow').textContent = card.shadow;
+  document.getElementById('rAction').textContent = card.action;
+
+  const g = guidanceFor(viewDate);
+  document.getElementById('gText').textContent = g.text;
+  document.getElementById('gSrc').textContent =
+    g.type==='personal' ? 'Based on your entries' :
+    g.type==='lunar' ? 'Lunar context' : 'NeoSoul reflection';
+
+  drawDots('moodDots','mood',e.mood); drawDots('energyDots','energy',e.energy);
+  note.value = e.journal_text || ''; updateCount();
+}
+function drawDots(id, field, val){
+  const box=document.getElementById(id); box.innerHTML='';
+  for(let i=1;i<=5;i++){
+    const b=document.createElement('button');
+    b.className='dot'; b.textContent=i; b.setAttribute('aria-pressed', String(val===i));
+    b.setAttribute('aria-label', field+' '+i);
+    b.onclick=()=>{ setField(field, val===i?null:i); };
+    box.appendChild(b);
+  }
+}
+function setField(field,val){
+  DB.entries[viewDate] = DB.entries[viewDate] || {};
+  if (val===null) delete DB.entries[viewDate][field]; else DB.entries[viewDate][field]=val;
+  DB.entries[viewDate].updated = Date.now();
+  persist(); saveEntry(viewDate); renderToday(); flashSaved();
+}
+document.querySelectorAll('.clear').forEach(b=>b.onclick=()=>setField(b.dataset.clear,null));
+
+let t=null;
+note.addEventListener('input',()=>{
+  updateCount(); clearTimeout(t);
+  t=setTimeout(()=>{
+    DB.entries[viewDate]=DB.entries[viewDate]||{};
+    DB.entries[viewDate].journal_text=note.value;
+    DB.entries[viewDate].updated=Date.now();
+    persist(); saveEntry(viewDate); flashSaved(); extract(); renderMe();
+  },700);
+});
+function updateCount(){
+  const w=note.value.trim()?note.value.trim().split(/\s+/).length:0;
+  document.getElementById('count').textContent = w? w+(w===1?' word':' words') : '';
+}
+function flashSaved(){ const s=document.getElementById('saved');
+  s.classList.add('on'); setTimeout(()=>s.classList.remove('on'),1500); }
+
+document.getElementById('prevDay').onclick=()=>{ const d=fromIso(viewDate); d.setDate(d.getDate()-1); viewDate=iso(d); renderToday(); };
+document.getElementById('nextDay').onclick=()=>{ if(viewDate>=todayIso)return; const d=fromIso(viewDate); d.setDate(d.getDate()+1); viewDate=iso(d); renderToday(); };
+document.getElementById('jumpToday').onclick=()=>{ viewDate=todayIso; renderToday(); };
+
+/* ═══════════ MOON calendar ═══════════ */
+let mView = new Date(); mView.setDate(1);
+const DOW=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+document.getElementById('mHead').innerHTML = DOW.map(d=>`<div class="mhead">${d}</div>`).join('');
+
+function renderMoon(){
+  document.getElementById('mTitle').textContent =
+    mView.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+  const first=new Date(mView.getFullYear(),mView.getMonth(),1);
+  const startPad=(first.getDay()+6)%7;
+  const days=new Date(mView.getFullYear(),mView.getMonth()+1,0).getDate();
+  let cells='';
+  for(let i=0;i<startPad;i++) cells+='<div class="day out"></div>';
+  for(let d=1;d<=days;d++){
+    const ds=iso(new Date(mView.getFullYear(),mView.getMonth(),d));
+    const l=lunar(fromIso(ds)); const ev=eventOn(ds);
+    const has=DB.entries[ds]&&(DB.entries[ds].journal_text||'').trim();
+    cells+=`<button class="day${ds===todayIso?' today':''}${ev?' evt':''}" data-d="${ds}">
+      <span class="md" style="${l?discCSS(l.illum,l.waxing):''}"></span>
+      <span class="d">${d}</span>${has?'<span class="has"></span>':''}</button>`;
+  }
+  const g=document.getElementById('mGrid'); g.innerHTML=cells;
+  g.querySelectorAll('.day[data-d]').forEach(b=>b.onclick=()=>{
+    viewDate=b.dataset.d; showPanel('today'); renderToday();
+  });
+  renderReflection(); renderHistory();
+}
+document.getElementById('prevMonth').onclick=()=>{mView.setMonth(mView.getMonth()-1);renderMoon();};
+document.getElementById('nextMonth').onclick=()=>{mView.setMonth(mView.getMonth()+1);renderMoon();};
+
+/* §13 personal reflection — cached per date, grounded in real entries */
+function renderReflection(){
+  const l=lunar(new Date()); if(!l) return;
+  const key=todayIso;
+  if(!DB.reflect[key]){
+    const recent=Object.entries(DB.entries)
+      .filter(([d,e])=>e.journal_text&&e.journal_text.trim()&&d<=todayIso)
+      .sort((a,b)=>b[0].localeCompare(a[0])).slice(0,14);
+    const themes=DB.memories.filter(m=>m.status==='active'&&m.type==='theme');
+    DB.reflect[key]={
+      phase:l.phase,
+      insight: themes.length
+        ? 'You have written about '+themes[0].title.toLowerCase()+' on '+themes[0].count+' separate days.'
+        : (recent.length ? 'You have '+recent.length+' entries in the last two weeks.'
+                         : 'There is not enough history yet for a personal reflection.'),
+      notice: l.waxing ? 'Notice what you are adding to, and whether you chose it.'
+                       : 'Notice what is finishing, and whether you are letting it.',
+      question: themes.length
+        ? 'What do I already know about '+themes[0].title.toLowerCase()+' that I keep reconsidering?'
+        : 'What would I write about today if no one would ever read it?',
+      sources: recent.slice(0,3).map(r=>r[0])
+    };
+    persist();
+  }
+  const r=DB.reflect[key];
+  document.getElementById('rTitle').textContent = r.phase+' — what to notice';
+  document.getElementById('rInsight').textContent = r.insight;
+  document.getElementById('rNotice').textContent = r.notice;
+  document.getElementById('rQuestion').textContent = r.question;
+}
+
+/* §14 lunar history — entries within ±2 days of the previous full moon */
+function renderHistory(){
+  const a=around(new Date());
+  const box=document.getElementById('hList');
+  if(!a.prevFull){ box.innerHTML=''; return; }
+  const centre=a.prevFull.t;
+  const win=[];
+  for(let i=-2;i<=2;i++){ const d=new Date(centre); d.setDate(d.getDate()+i); win.push(iso(d)); }
+  document.getElementById('hTitle').textContent =
+    'Around the last full moon — '+prettyShort(iso(centre));
+  const rows=win.filter(d=>DB.entries[d]&&(DB.entries[d].journal_text||'').trim());
+  box.innerHTML = rows.length
+    ? rows.map(d=>`<div class="hist-item"><p class="hist-when">${prettyShort(d)}</p>
+        <p style="margin:0;font-size:14px;line-height:1.7;font-weight:300;color:var(--ink2)">${esc(DB.entries[d].journal_text).slice(0,260)}</p></div>`).join('')
+    : `<p style="font-size:14px;color:var(--ink2);font-weight:300">You had no entries around that date. This section fills in as you keep writing.</p>`;
+}
+
+/* ═══════════ ME ═══════════ */
+const PROF_FIELDS=[['name','Name'],['date_of_birth','Date of birth'],
+                   ['birth_time','Birth time'],['birth_place','Birth place'],['timezone','Timezone']];
+function renderProfile(){
+  document.getElementById('profGrid').innerHTML = PROF_FIELDS.map(([k,l])=>
+    `<div class="field"><label for="p_${k}">${l}</label>
+     <input id="p_${k}" data-k="${k}" value="${esc(DB.profile[k]||'')}"
+      placeholder="${k==='birth_time'?'optional':'—'}"></div>`).join('');
+  document.querySelectorAll('#profGrid input').forEach(inp=>{
+    inp.onchange=()=>{ DB.profile[inp.dataset.k]=inp.value; persist(); };
+  });
+}
+
+/* Provisional extraction. In production this is model extraction per §20–23.
+   Here it only finds what can be found honestly without one. */
+const STOP=new Set(('the a an and or but i me my we you he she it they them his her their this that these those of to in on at for with about from as is are was were be been being have has had do does did not no yes so if then than there here what when where who how all any some more most other into over after before again very just also too own same can will would should could get got make made go went come came see saw know knew think thought feel felt want wanted need needed day today tomorrow yesterday time really much many one two back still even way thing things people work good bad great little long').split(' '));
+function extract(){
+  // Full rebuild across every entry. Crude by design — the point is the
+  // structure (type, confidence, provenance, correction), not the cleverness.
+  const entries = Object.entries(DB.entries)
+    .filter(([d,e]) => e.journal_text && e.journal_text.trim())
+    .sort((a,b)=>a[0].localeCompare(b[0]));
+  if(!entries.length) return;
+
+  // 1. people: a capitalised token seen mid-sentence at least once anywhere
+  const midSentence = new Set(), allCaps = {};
+  entries.forEach(([d,e]) => {
+    e.journal_text.split(/(?<=[.!?])\s+/).forEach(sent=>{
+      sent.trim().split(/\s+/).forEach((tok,i)=>{
+        const c = tok.replace(/[^A-Za-z'-]/g,'');
+        if(c.length>2 && /^[A-Z][a-z]+$/.test(c) && !STOP.has(c.toLowerCase())){
+          allCaps[c] = allCaps[c] || new Set();
+          allCaps[c].add(d);
+          if(i>0) midSentence.add(c);
+        }
+      });
+    });
+  });
+  const people = Object.keys(allCaps).filter(n => midSentence.has(n));
+  const personLower = new Set(people.map(p=>p.toLowerCase()));
+
+  people.forEach(nm=>{
+    const days=[...allCaps[nm]].sort();
+    upsert('person', nm, days.length>=3?'medium':'low', days, findExcerpt(entries, nm));
+  });
+
+  // 2. themes: significant words on 3+ separate days, never a person's name
+  const dayWords = {};
+  entries.forEach(([d,e])=>{
+    const ws = new Set((e.journal_text.toLowerCase().match(/[a-z']{4,}/g)||[])
+                       .filter(w=>!STOP.has(w) && !personLower.has(w)));
+    ws.forEach(w=>{ (dayWords[w]=dayWords[w]||[]).push(d); });
+  });
+  Object.entries(dayWords).forEach(([w,days])=>{
+    if(days.length>=3)
+      upsert('theme', w[0].toUpperCase()+w.slice(1),
+             days.length>=5?'medium':'low', days.sort(), findExcerpt(entries,w));
+  });
+  persist();
+}
+function findExcerpt(entries, term){
+  const re = new RegExp('\\b'+term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b','i');
+  for(let i=entries.length-1;i>=0;i--){
+    const [d,e]=entries[i];
+    const s=e.journal_text.split(/(?<=[.!?])\s+/).find(x=>re.test(x));
+    if(s) return {date:d, excerpt:s.trim().slice(0,180)};
+  }
+  return null;
+}
+function upsert(type,title,conf,days,ex){
+  // Match on the term the extractor found, never on the display title —
+  // otherwise a user renaming "Sofia" to "Sofia Schnell" orphans the memory
+  // and the next pass recreates the original as a duplicate (§26).
+  const key = title.toLowerCase();
+  let m=DB.memories.find(x=>x.type===type && (x.source_title||x.title).toLowerCase()===key);
+  if(!m){ m={id:crypto.randomUUID(),type,title,source_title:title,confidence:conf,
+             status:'active',user_confirmed:false,user_edited:false,sources:[],count:0};
+          DB.memories.push(m); }
+  if(!m.source_title) m.source_title = m.title;
+  if(m.status==='removed') return;                       // §25 — removal sticks
+  m.sources = days.map(d=>({date:d, excerpt: ex && ex.date===d ? ex.excerpt : ''}));
+  if(ex && !m.sources.some(s=>s.excerpt)) m.sources.push(ex);
+  m.count = days.length;
+  if(!m.user_edited && !m.user_confirmed) m.confidence = conf;   // correction wins
+  m.last = days[days.length-1];
+  m.lastExcerpt = ex;
+}
+function renderMe(){
+  renderProfile();
+  const act=DB.memories.filter(m=>m.status==='active')
+    .sort((a,b)=> (b.count-a.count) || a.type.localeCompare(b.type));
+  const box=document.getElementById('memList');
+  if(!act.length){
+    box.innerHTML=`<div class="empty"><b>Nothing yet.</b>NeoSoul builds this from what you write. Day one should not pretend to know you.</div>`;
+  } else {
+    box.innerHTML=act.map(m=>`<div class="mem${m.user_confirmed?' confirmed':''}">
+      <div class="mem-top"><span class="mem-type">${m.type}</span>
+        <span class="mem-conf ${m.confidence}">${m.confidence} confidence</span>
+        <span style="font-size:11px;color:var(--ink2);opacity:.7">seen on ${m.count} ${m.count===1?'day':'days'}</span></div>
+      <p class="mem-title">${esc(m.title)}</p>
+      ${m.lastExcerpt ? `<p class="mem-src">&ldquo;${esc(m.lastExcerpt.excerpt)}&rdquo; &mdash; ${prettyShort(m.lastExcerpt.date)}</p>`:''}
+      <div class="mem-acts">
+        <button class="mini" data-act="confirm" data-id="${m.id}">${m.user_confirmed?'Confirmed':'Confirm'}</button>
+        <button class="mini" data-act="edit" data-id="${m.id}">Edit</button>
+        <button class="mini" data-act="remove" data-id="${m.id}">Remove</button>
+      </div></div>`).join('');
+    box.querySelectorAll('.mini').forEach(b=>b.onclick=()=>memAct(b.dataset.act,b.dataset.id));
+  }
+  document.getElementById('memNote').textContent =
+    'Every item above points at a sentence you actually wrote, and you can correct or remove any of it — a correction always overrides what was inferred. Extraction here is a provisional stand-in; in the built product this is model extraction with the same provenance and confidence rules.';
+}
+function memAct(act,id){
+  const m=DB.memories.find(x=>x.id===id); if(!m) return;
+  if(act==='confirm'){ m.user_confirmed=true; m.confidence='high'; m.last_confirmed=Date.now(); }
+  if(act==='edit'){ const v=prompt('Correct this:',m.title); if(v===null)return;
+                    m.title=v.trim()||m.title; m.user_edited=true; m.confidence='high'; }
+                 // source_title deliberately unchanged — it is the match key
+  if(act==='remove'){ m.status='removed'; }
+  persist(); renderMe();
+}
+
+/* ═══════════ tabs ═══════════ */
+function showPanel(id){
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',String(t.dataset.p===id)));
+  document.querySelectorAll('.panel').forEach(p=>p.hidden = p.id!==id);
+  if(id==='moon') renderMoon();
+  if(id==='me')   renderMe();
+}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>showPanel(t.dataset.p));
+
+function renderWho(){
+  const t = trialState(USER);
+  document.getElementById('who').innerHTML =
+    `<span>${USER.name || USER.email || ''}</span>` +
+    `<span class="trial${t.expired?' over':''}">${t.expired ? 'Trial ended'
+       : t.left + (t.left===1?' day left':' days left')}</span>` +
+    `<button id="out">Sign out</button>`;
+  document.getElementById('out').onclick = async () => {
+    await api.signOut(); location.href = 'index.html';
+  };
+  // §: reading and export always stay available — only writing is gated
+  if (t.expired){
+    document.getElementById('paywall').hidden = false;
+    note.readOnly = true;
+  }
+}
+document.getElementById('pwGo').onclick = () => {
+  alert('Payment is not connected yet. This is where Stripe checkout opens.');
+};
+
+extract(); renderToday(); renderMe(); renderWho();
+</script>
+</body>
+</html>
